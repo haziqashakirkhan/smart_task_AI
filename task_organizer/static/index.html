@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>to-do bestie ✨</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #3b2a4d;
+    --bg1: #ffe3f1; --bg2: #e6defe; --bg3: #d8f6ea;
+    --card: #fffaff;
+    --soft: #fff;
+    --muted: #7a6a8c;
+    --pink: #ff7eb6; --purple: #8b6cf6;
+    --high: #ff5c85; --high-bg: #ffe1e9;
+    --med: #ffa63d;  --med-bg: #fff0d3;
+    --low: #35c493;  --low-bg: #daf6ea;
+    --shadow: 5px 5px 0 var(--ink);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #f3e9ff;
+      --bg1: #2a1640; --bg2: #1b1535; --bg3: #14263a;
+      --card: #2b2145; --soft: #362a57; --muted: #b9a9d4;
+      --high-bg: #4a2036; --med-bg: #4a3520; --low-bg: #1c4236;
+      --shadow: 5px 5px 0 #0d0818;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #f3e9ff;
+    --bg1: #2a1640; --bg2: #1b1535; --bg3: #14263a;
+    --card: #2b2145; --soft: #362a57; --muted: #b9a9d4;
+    --high-bg: #4a2036; --med-bg: #4a3520; --low-bg: #1c4236;
+    --shadow: 5px 5px 0 #0d0818;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; min-height: 100vh;
+    font-family: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+    color: var(--ink);
+    background: linear-gradient(135deg, var(--bg1), var(--bg2) 55%, var(--bg3));
+    background-attachment: fixed;
+    padding: 28px 16px 70px;
+    overflow-x: hidden;
+  }
+  .float { position: fixed; font-size: 26px; opacity: .55; pointer-events: none; animation: bob 6s ease-in-out infinite; z-index: 0; }
+  @keyframes bob { 0%,100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-14px) rotate(8deg); } }
+  main { position: relative; z-index: 1; max-width: 740px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 22px; }
+  h1 {
+    margin: 0; font-size: clamp(38px, 9vw, 58px); font-weight: 700; letter-spacing: -1px;
+    background: linear-gradient(90deg, var(--pink), var(--purple));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(3px 3px 0 rgba(59,42,77,.18));
+  }
+  .tag { margin: 6px 0 0; color: var(--muted); font-size: 18px; font-weight: 500; }
+  .theme { position: absolute; top: 0; right: 0; }
+
+  .card {
+    background: var(--card); border: 2.5px solid var(--ink); border-radius: 24px;
+    box-shadow: var(--shadow); padding: 20px;
+  }
+  label.big { display: block; font-weight: 600; font-size: 18px; margin-bottom: 10px; }
+  textarea {
+    width: 100%; min-height: 130px; resize: vertical; font: inherit; font-size: 17px; color: var(--ink);
+    background: var(--soft); border: 2.5px dashed var(--pink); border-radius: 18px; padding: 14px 16px; outline: none;
+  }
+  textarea:focus { border-style: solid; border-color: var(--purple); }
+  textarea::placeholder { color: var(--muted); opacity: .8; }
+
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; flex: 1; }
+  .chips small { color: var(--muted); font-weight: 500; }
+  .chip {
+    font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--ink);
+    background: var(--soft); border: 2px solid var(--ink); border-radius: 999px; padding: 5px 12px;
+    transition: transform .12s;
+  }
+  .chip:hover { transform: translateY(-2px) rotate(-2deg); background: var(--med-bg); }
+
+  button.go, button.ghost {
+    font: inherit; font-weight: 600; cursor: pointer; color: #3b2a4d;
+    border: 2.5px solid var(--ink); border-radius: 999px; padding: 11px 22px; font-size: 17px;
+    box-shadow: 3px 3px 0 var(--ink); transition: transform .1s, box-shadow .1s;
+  }
+  button.go { background: linear-gradient(90deg, #ffa3cf, #b9a4ff); }
+  button.ghost { background: var(--soft); color: var(--ink); font-size: 15px; padding: 8px 16px; }
+  button.go:hover, button.ghost:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); }
+  button.go:active, button.ghost:active { transform: translate(3px,3px); box-shadow: 0 0 0 var(--ink); }
+  button:disabled { opacity: .6; cursor: wait; }
+  .hint { color: var(--muted); font-size: 13px; margin-top: 8px; }
+
+  #status { margin-top: 22px; }
+  .loading { text-align: center; padding: 26px 16px; }
+  .spinner { font-size: 44px; display: inline-block; animation: spin 1.4s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { margin: 10px 0 0; font-weight: 500; font-size: 18px; }
+  .error { background: var(--high-bg); }
+  .error h3 { margin: 0 0 6px; }
+  .error p { margin: 0; word-break: break-word; }
+
+  #results { margin-top: 24px; display: none; }
+  .progress { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+  .progress-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-weight: 600; }
+  .track { height: 18px; background: var(--soft); border: 2.5px solid var(--ink); border-radius: 999px; overflow: hidden; }
+  .fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--pink), var(--purple)); transition: width .4s cubic-bezier(.3,1.4,.5,1); }
+  .actions { display: flex; gap: 8px; }
+
+  .lane { margin-bottom: 20px; animation: pop .45s cubic-bezier(.3,1.5,.5,1) both; }
+  @keyframes pop { from { transform: scale(.92) translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .lane-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .lane-emoji { font-size: 30px; }
+  .lane-head h2 { margin: 0; font-size: 22px; line-height: 1.1; }
+  .lane-head small { display: block; color: var(--muted); font-size: 14px; font-weight: 400; margin-top: 2px; }
+  .count { margin-left: auto; font-weight: 700; border: 2.5px solid var(--ink); border-radius: 999px; padding: 2px 12px; }
+  .lane.High { background: var(--high-bg); } .lane.High .count { background: var(--high); color: #fff; }
+  .lane.Medium { background: var(--med-bg); } .lane.Medium .count { background: var(--med); color: #3b2a4d; }
+  .lane.Low { background: var(--low-bg); } .lane.Low .count { background: var(--low); color: #12362a; }
+
+  .task {
+    display: flex; gap: 12px; align-items: flex-start; cursor: pointer; user-select: none;
+    background: var(--soft); border: 2.5px solid var(--ink); border-radius: 18px; padding: 12px 14px; margin-top: 10px;
+    transition: transform .12s;
+  }
+  .task:hover { transform: translateX(3px) rotate(-.4deg); }
+  .box {
+    flex: none; width: 28px; height: 28px; border: 2.5px solid var(--ink); border-radius: 50%;
+    display: grid; place-items: center; font-size: 16px; background: var(--card); margin-top: 1px;
+  }
+  .task.done .box { background: var(--low); }
+  .task.done .box::after { content: "✓"; color: #12362a; font-weight: 700; }
+  .task.done .title { text-decoration: line-through; opacity: .55; }
+  .task.done .why { opacity: .45; }
+  .info { min-width: 0; }
+  .title { font-weight: 600; font-size: 18px; word-break: break-word; }
+  .pill { display: inline-block; font-size: 13px; font-weight: 500; background: var(--card); border: 2px solid var(--ink); border-radius: 999px; padding: 1px 9px; margin-left: 6px; vertical-align: 2px; }
+  .why { color: var(--muted); font-size: 14px; margin-top: 3px; }
+
+  .confetti { position: fixed; top: -30px; font-size: 24px; pointer-events: none; z-index: 9; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(540deg); opacity: .9; } }
+
+  footer { text-align: center; color: var(--muted); font-size: 14px; margin-top: 34px; }
+  @media (prefers-reduced-motion: reduce) {
+    .float, .spinner, .lane, .confetti { animation: none !important; }
+    .confetti { display: none; }
+  }
+</style>
+</head>
+<body>
+<span class="float" style="top:8%;left:6%">✨</span>
+<span class="float" style="top:18%;right:7%;animation-delay:1s">🎀</span>
+<span class="float" style="top:62%;left:4%;animation-delay:2s">💖</span>
+<span class="float" style="top:80%;right:6%;animation-delay:.5s">🍓</span>
+<span class="float" style="top:42%;right:3%;animation-delay:3s">⭐</span>
+
+<main>
+  <header>
+    <button class="ghost theme" id="theme" title="toggle theme" aria-label="toggle theme">🌙</button>
+    <h1>to-do bestie ✨</h1>
+    <p class="tag">brain dump everything, i’ll make it cute &amp; organized</p>
+  </header>
+
+  <section class="card">
+    <label class="big" for="input">what’s on ur mind? 💭</label>
+    <textarea id="input" maxlength="4000" placeholder="e.g. i need to finish my assignment tomorrow, buy groceries today, and prep for my meeting next week..."></textarea>
+    <div class="row">
+      <div class="chips" id="chips"><small>try one:</small></div>
+      <button class="go" id="go">organize me 💅</button>
+    </div>
+    <div class="hint">tip: press Ctrl/⌘ + Enter to submit</div>
+  </section>
+
+  <div id="status" aria-live="polite"></div>
+
+  <section id="results">
+    <div class="card progress">
+      <div class="progress-top">
+        <span id="pmsg">let’s get it 💪</span>
+        <span><b id="pcount">0/0</b> done</span>
+        <span class="actions">
+          <button class="ghost" id="copy">copy 📋</button>
+          <button class="ghost" id="reset">start over 🔄</button>
+        </span>
+      </div>
+      <div class="track"><div class="fill" id="fill"></div></div>
+    </div>
+    <div id="lanes"></div>
+  </section>
+
+  <footer>made with love &amp; a little bit of AI 🎀</footer>
+</main>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const LANES = {
+    High:   { emoji: "🔥", title: "main character energy", sub: "do these first, bestie" },
+    Medium: { emoji: "✨", title: "side quests", sub: "doable, no panic" },
+    Low:    { emoji: "🧸", title: "low-key chill", sub: "no stress, whenever" },
+  };
+  const EXAMPLES = [
+    "finish my assignment tomorrow, buy groceries today, prep for meeting next week",
+    "text mom back, laundry tonight, book dentist, study for quiz on friday",
+    "plan bff’s birthday next month, pay rent by the 1st, gym today, clean my room",
+  ];
+  const LOADING = [
+    "consulting the vibes… 🔮", "manifesting ur schedule… ✨", "sorting ur chaos… 🌀",
+    "asking the AI nicely… 🤖", "making it aesthetic… 🎀", "almost there, bestie… 💖",
+  ];
+  const PROGRESS = [
+    [0, "let’s get it 💪"], [0.01, "ok we’re moving 🏃‍♀️"], [0.5, "slay, keep going 💅"],
+    [0.8, "so close omg 😭"], [1, "ur done?? iconic 👑"],
+  ];
+
+  let tasks = [], done = new Set(), loadTimer = null;
+
+  // theme
+  const root = document.documentElement;
+  const sysDark = matchMedia("(prefers-color-scheme: dark)");
+  const setTheme = (t) => { root.dataset.theme = t; $("#theme").textContent = t === "dark" ? "☀️" : "🌙"; };
+  setTheme(sysDark.matches ? "dark" : "light");
+  $("#theme").onclick = () => setTheme(root.dataset.theme === "dark" ? "light" : "dark");
+
+  // example chips
+  EXAMPLES.forEach((ex, i) => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.textContent = "example " + (i + 1);
+    b.onclick = () => { $("#input").value = ex; $("#input").focus(); };
+    $("#chips").appendChild(b);
+  });
+
+  function setLoading(on) {
+    clearInterval(loadTimer);
+    $("#go").disabled = on;
+    if (!on) return;
+    let i = 0;
+    $("#status").innerHTML = "";
+    const box = document.createElement("div");
+    box.className = "card loading";
+    box.innerHTML = '<span class="spinner">🌸</span><p></p>';
+    $("#status").appendChild(box);
+    const p = box.querySelector("p");
+    p.textContent = LOADING[0];
+    loadTimer = setInterval(() => { i = (i + 1) % LOADING.length; p.textContent = LOADING[i]; }, 1700);
+  }
+
+  function showError(msg) {
+    $("#status").innerHTML = "";
+    const box = document.createElement("div");
+    box.className = "card error";
+    const h = document.createElement("h3"); h.textContent = "oop— something broke 🥲";
+    const p = document.createElement("p"); p.textContent = msg;
+    box.append(h, p);
+    $("#status").appendChild(box);
+  }
+
+  async function organize() {
+    const text = $("#input").value.trim();
+    if (!text) { showError("type a few tasks first, bestie 🫶"); return; }
+    $("#results").style.display = "none";
+    setLoading(true);
+    try {
+      const res = await fetch("/api/organize", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "server said " + res.status);
+      setLoading(false);
+      $("#status").innerHTML = "";
+      render(data.tasks || []);
+    } catch (e) {
+      setLoading(false);
+      showError(e.message || String(e));
+    }
+  }
+
+  function render(list) {
+    tasks = list; done = new Set();
+    const lanes = $("#lanes"); lanes.innerHTML = "";
+    if (!list.length) {
+      showError("i couldn’t find any tasks 🥺 try listing a few things u need to do!");
+      $("#results").style.display = "none"; return;
+    }
+    for (const level of ["High", "Medium", "Low"]) {
+      const group = list.filter((t) => t.priority === level);
+      if (!group.length) continue;
+      const meta = LANES[level];
+      const lane = document.createElement("section");
+      lane.className = "card lane " + level;
+      lane.innerHTML = '<div class="lane-head"><span class="lane-emoji"></span><div><h2></h2><small></small></div><span class="count"></span></div>';
+      lane.querySelector(".lane-emoji").textContent = meta.emoji;
+      lane.querySelector("h2").textContent = meta.title;
+      lane.querySelector("small").textContent = meta.sub;
+      lane.querySelector(".count").textContent = group.length;
+      for (const t of group) lane.appendChild(taskEl(t));
+      lanes.appendChild(lane);
+    }
+    $("#results").style.display = "block";
+    updateProgress(false);
+    $("#results").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function taskEl(t) {
+    const el = document.createElement("div");
+    el.className = "task"; el.tabIndex = 0; el.setAttribute("role", "checkbox"); el.setAttribute("aria-checked", "false");
+    const box = document.createElement("span"); box.className = "box";
+    const info = document.createElement("div"); info.className = "info";
+    const title = document.createElement("div"); title.className = "title"; title.textContent = t.title;
+    if (t.deadline) {
+      const pill = document.createElement("span"); pill.className = "pill"; pill.textContent = "⏰ " + t.deadline;
+      title.appendChild(pill);
+    }
+    const why = document.createElement("div"); why.className = "why"; why.textContent = t.reason || "";
+    info.append(title, why); el.append(box, info);
+    const toggle = () => {
+      const on = !done.has(t.id);
+      on ? done.add(t.id) : done.delete(t.id);
+      el.classList.toggle("done", on); el.setAttribute("aria-checked", String(on));
+      updateProgress(on);
+    };
+    el.onclick = toggle;
+    el.onkeydown = (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggle(); } };
+    return el;
+  }
+
+  function updateProgress(justChecked) {
+    const total = tasks.length, n = done.size, r = total ? n / total : 0;
+    $("#pcount").textContent = n + "/" + total;
+    $("#fill").style.width = (r * 100) + "%";
+    let msg = PROGRESS[0][1];
+    for (const [min, m] of PROGRESS) if (r >= min) msg = m;
+    $("#pmsg").textContent = msg;
+    if (justChecked && total && n === total) confetti();
+  }
+
+  function confetti() {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const bits = ["🎀", "✨", "💖", "⭐", "🌸", "🍓", "🎉"];
+    for (let i = 0; i < 40; i++) {
+      const s = document.createElement("span");
+      s.className = "confetti"; s.textContent = bits[i % bits.length];
+      s.style.left = Math.random() * 100 + "vw";
+      s.style.animationDuration = 2 + Math.random() * 2 + "s";
+      s.style.animationDelay = Math.random() * 0.6 + "s";
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 4800);
+    }
+  }
+
+  async function copyList() {
+    const lines = ["my to-do list ✨"];
+    for (const level of ["High", "Medium", "Low"]) {
+      const group = tasks.filter((t) => t.priority === level);
+      if (!group.length) continue;
+      lines.push("", LANES[level].emoji + " " + LANES[level].title);
+      for (const t of group) lines.push("[" + (done.has(t.id) ? "x" : " ") + "] " + t.title + (t.deadline ? " (" + t.deadline + ")" : ""));
+    }
+    try {
+      await navigator.clipboard.writeText(lines.join("\n"));
+      $("#copy").textContent = "copied! ✅";
+    } catch { $("#copy").textContent = "couldn’t copy 😢"; }
+    setTimeout(() => ($("#copy").textContent = "copy 📋"), 1800);
+  }
+
+  $("#go").onclick = organize;
+  $("#copy").onclick = copyList;
+  $("#reset").onclick = () => {
+    $("#input").value = ""; $("#results").style.display = "none"; $("#status").innerHTML = "";
+    window.scrollTo({ top: 0, behavior: "smooth" }); $("#input").focus();
+  };
+  $("#input").addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") organize();
+  });
+})();
+</script>
+</body>
+</html>
